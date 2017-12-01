@@ -1,0 +1,18 @@
+main
+	UART1_Init
+Interrupt
+	UART1_Data_Ready
+	UART1_Read
+	Lcd_Init
+		Delay_5500us
+		Delay_1us
+	Lcd_Cmd
+		Delay_1us
+		Delay_5500us
+		Delay_50us
+	Lcd_Chr
+		Lcd_Cmd
+			Delay_1us
+			Delay_5500us
+			Delay_50us
+	UART1_Write
