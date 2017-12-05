@@ -1,4 +1,4 @@
-#line 1 "D:/Programming/MicroControllerWithCsharp/Sheet_02/Project_01/Code/MicroController_One/MyProject.c"
+#line 1 "D:/Programming/MicroControllerWithCsharp/Sheet_02/Lab_Projects/Project_01/Code/MicroController_One/MyProject.c"
 
 
 
@@ -20,7 +20,7 @@ sbit LCD_D7_Direction at TRISB7_bit;
 
 unsigned char i;
 unsigned char t;
-#line 27 "D:/Programming/MicroControllerWithCsharp/Sheet_02/Project_01/Code/MicroController_One/MyProject.c"
+#line 27 "D:/Programming/MicroControllerWithCsharp/Sheet_02/Lab_Projects/Project_01/Code/MicroController_One/MyProject.c"
 void main() {
 
 

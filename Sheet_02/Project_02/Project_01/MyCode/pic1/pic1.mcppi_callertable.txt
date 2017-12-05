@@ -1,3 +1,0 @@
-main
-	UART1_Init
-	UART1_Write
