@@ -35,7 +35,10 @@ void main() {
 
  if (Uart1_Data_Ready())
  {
-#line 42 "D:/Programming/MicroControllerWithCsharp/Sheet_02/Project_02/Code/MicroController_Two/pic2.c"
+
+ Uart1_Read_Text(&txt,"ok",17);
+ Lcd_out(2,1,Txt);
+
  txt2 = Uart1_Read();
  Lcd_chr(2,1,txt2);
 

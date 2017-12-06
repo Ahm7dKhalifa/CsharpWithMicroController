@@ -87,13 +87,31 @@ L__Interrupt5:
 	MOVLW       hi_addr(_txt+0)
 	MOVWF       FARG_Lcd_Out_text+1 
 	CALL        _Lcd_Out+0, 0
-;MyProject.c,44 :: 		Uart1_write(i);
+;MyProject.c,43 :: 		Uart1_write_Text("TempC = ");
+	MOVLW       ?lstr2_MyProject+0
+	MOVWF       FARG_UART1_Write_Text_uart_text+0 
+	MOVLW       hi_addr(?lstr2_MyProject+0)
+	MOVWF       FARG_UART1_Write_Text_uart_text+1 
+	CALL        _UART1_Write_Text+0, 0
+;MyProject.c,44 :: 		Uart1_write_Text(txt);
+	MOVLW       _txt+0
+	MOVWF       FARG_UART1_Write_Text_uart_text+0 
+	MOVLW       hi_addr(_txt+0)
+	MOVWF       FARG_UART1_Write_Text_uart_text+1 
+	CALL        _UART1_Write_Text+0, 0
+;MyProject.c,45 :: 		Uart1_write_Text("OK");
+	MOVLW       ?lstr3_MyProject+0
+	MOVWF       FARG_UART1_Write_Text_uart_text+0 
+	MOVLW       hi_addr(?lstr3_MyProject+0)
+	MOVWF       FARG_UART1_Write_Text_uart_text+1 
+	CALL        _UART1_Write_Text+0, 0
+;MyProject.c,46 :: 		Uart1_write(i);
 	MOVF        _i+0, 0 
 	MOVWF       FARG_UART1_Write_data_+0 
 	CALL        _UART1_Write+0, 0
-;MyProject.c,45 :: 		i++;
+;MyProject.c,47 :: 		i++;
 	INCF        _i+0, 1 
-;MyProject.c,46 :: 		Delay_ms(300);
+;MyProject.c,48 :: 		Delay_ms(300);
 	MOVLW       4
 	MOVWF       R11, 0
 	MOVLW       12
@@ -109,9 +127,9 @@ L_Interrupt1:
 	BRA         L_Interrupt1
 	NOP
 	NOP
-;MyProject.c,47 :: 		}
+;MyProject.c,49 :: 		}
 L_Interrupt0:
-;MyProject.c,48 :: 		}
+;MyProject.c,50 :: 		}
 L_end_Interrupt:
 L__Interrupt3:
 	RETFIE      1
@@ -119,41 +137,41 @@ L__Interrupt3:
 
 _main:
 
-;MyProject.c,54 :: 		void main() {
-;MyProject.c,58 :: 		TRISB = 0;          // make PORTB output for LCD
+;MyProject.c,56 :: 		void main() {
+;MyProject.c,60 :: 		TRISB = 0;          // make PORTB output for LCD
 	CLRF        TRISB+0 
-;MyProject.c,59 :: 		TRISC.F7 = 1;       // make RX input
+;MyProject.c,61 :: 		TRISC.F7 = 1;       // make RX input
 	BSF         TRISC+0, 7 
-;MyProject.c,60 :: 		TRISC.F6 = 0;       // make TX output
+;MyProject.c,62 :: 		TRISC.F6 = 0;       // make TX output
 	BCF         TRISC+0, 6 
-;MyProject.c,61 :: 		ADCON1 = 0x80;  // Configure all pins of PORTA as A/D channels
+;MyProject.c,63 :: 		ADCON1 = 0x80;  // Configure all pins of PORTA as A/D channels
 	MOVLW       128
 	MOVWF       ADCON1+0 
-;MyProject.c,67 :: 		UART1_Init(9600);
+;MyProject.c,69 :: 		UART1_Init(9600);
 	MOVLW       51
 	MOVWF       SPBRG+0 
 	BSF         TXSTA+0, 2, 0
 	CALL        _UART1_Init+0, 0
-;MyProject.c,70 :: 		i = 'A';
+;MyProject.c,72 :: 		i = 'A';
 	MOVLW       65
 	MOVWF       _i+0 
-;MyProject.c,81 :: 		T1CON         = 0x31;
+;MyProject.c,83 :: 		T1CON         = 0x31;
 	MOVLW       49
 	MOVWF       T1CON+0 
-;MyProject.c,82 :: 		TMR1IF_bit         = 0;
+;MyProject.c,84 :: 		TMR1IF_bit         = 0;
 	BCF         TMR1IF_bit+0, BitPos(TMR1IF_bit+0) 
-;MyProject.c,83 :: 		TMR1H         = 0x3C;
+;MyProject.c,85 :: 		TMR1H         = 0x3C;
 	MOVLW       60
 	MOVWF       TMR1H+0 
-;MyProject.c,84 :: 		TMR1L         = 0xAF;
+;MyProject.c,86 :: 		TMR1L         = 0xAF;
 	MOVLW       175
 	MOVWF       TMR1L+0 
-;MyProject.c,85 :: 		TMR1IE_bit         = 1;
+;MyProject.c,87 :: 		TMR1IE_bit         = 1;
 	BSF         TMR1IE_bit+0, BitPos(TMR1IE_bit+0) 
-;MyProject.c,86 :: 		INTCON         = 0xC0;
+;MyProject.c,88 :: 		INTCON         = 0xC0;
 	MOVLW       192
 	MOVWF       INTCON+0 
-;MyProject.c,90 :: 		}
+;MyProject.c,92 :: 		}
 L_end_main:
 	GOTO        $+0
 ; end of _main

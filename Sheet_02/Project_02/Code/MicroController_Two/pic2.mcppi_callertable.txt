@@ -19,6 +19,9 @@ main
 				Delay_50us
 	UART1_Init
 	UART1_Data_Ready
+	UART1_Read_Text
+		UART1_Data_Ready
+		UART1_Read
 	UART1_Read
 	Lcd_Chr
 		Lcd_Cmd

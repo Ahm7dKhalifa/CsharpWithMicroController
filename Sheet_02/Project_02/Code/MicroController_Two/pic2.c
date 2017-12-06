@@ -13,7 +13,7 @@ sbit LCD_D5_Direction at TRISB5_bit;
 sbit LCD_D6_Direction at TRISB6_bit;
 sbit LCD_D7_Direction at TRISB7_bit;
   char Txt[7];        // variable for lcd
- unsigned char txt2;        // variable for lcd
+ //unsigned char txt2;        // variable for lcd
 void main() {
 
 
@@ -24,7 +24,7 @@ void main() {
         Lcd_Init();
         Lcd_Cmd(_LCD_CLEAR);
         Lcd_Cmd(_LCD_CURSOR_OFF);
-        Lcd_Out(1,2,"Temp =  ");
+        //Lcd_Out(1,2,"Temp =  ");
 
         UART1_Init(9600);
         // Initialize UART with a baud rate of 9600
@@ -34,13 +34,12 @@ void main() {
                 // receive data
                 if (Uart1_Data_Ready())
                 {
-                        // if data is received,
-                        /*
-                        txt = Uart1_Read_Text();
+
+                        Uart1_Read_Text(&Txt,"ok",17);
                         Lcd_out(2,1,Txt);
-                        */
-                         txt2 = Uart1_Read();
-                         Lcd_chr(2,1,txt2);
+
+                        /* txt2 = Uart1_Read();
+                         Lcd_chr(2,1,txt2);  */
 
                 }
         }

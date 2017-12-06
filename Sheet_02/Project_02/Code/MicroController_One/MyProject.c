@@ -40,7 +40,9 @@ void Interrupt(){
       Lcd_Out(1,2,"TempC =  ");
       Lcd_Out(2,1,txt);
       
-      //Uart1_write_Text(txt);
+      Uart1_write_Text("TempC = ");
+      Uart1_write_Text(txt);
+      Uart1_write_Text("OK");
         Uart1_write(i);
         i++;
       Delay_ms(300);

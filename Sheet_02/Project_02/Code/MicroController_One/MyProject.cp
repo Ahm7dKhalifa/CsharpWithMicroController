@@ -41,13 +41,15 @@ void Interrupt(){
  Lcd_Out(1,2,"TempC =  ");
  Lcd_Out(2,1,txt);
 
-
+ Uart1_write_Text("TempC = ");
+ Uart1_write_Text(txt);
+ Uart1_write_Text("OK");
  Uart1_write(i);
  i++;
  Delay_ms(300);
  }
  }
-#line 54 "D:/Programming/MicroControllerWithCsharp/Sheet_02/Project_02/Code/MicroController_One/MyProject.c"
+#line 56 "D:/Programming/MicroControllerWithCsharp/Sheet_02/Project_02/Code/MicroController_One/MyProject.c"
 void main() {
 
 

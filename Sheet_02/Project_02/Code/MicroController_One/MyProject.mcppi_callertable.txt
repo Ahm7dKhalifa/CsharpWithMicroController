@@ -25,4 +25,6 @@ Interrupt
 				Delay_1us
 				Delay_5500us
 				Delay_50us
+	UART1_Write_Text
+		UART1_Write
 	UART1_Write

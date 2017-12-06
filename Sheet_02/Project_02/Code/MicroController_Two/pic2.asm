@@ -36,11 +36,33 @@ L_main0:
 	MOVF        R0, 1 
 	BTFSC       STATUS+0, 2 
 	GOTO        L_main3
-;pic2.c,42 :: 		txt2 = Uart1_Read();
+;pic2.c,38 :: 		Uart1_Read_Text(&txt,"ok",17);
+	MOVLW       _Txt+0
+	MOVWF       FARG_UART1_Read_Text_Output+0 
+	MOVLW       hi_addr(_Txt+0)
+	MOVWF       FARG_UART1_Read_Text_Output+1 
+	MOVLW       ?lstr2_pic2+0
+	MOVWF       FARG_UART1_Read_Text_Delimiter+0 
+	MOVLW       hi_addr(?lstr2_pic2+0)
+	MOVWF       FARG_UART1_Read_Text_Delimiter+1 
+	MOVLW       17
+	MOVWF       FARG_UART1_Read_Text_Attempts+0 
+	CALL        _UART1_Read_Text+0, 0
+;pic2.c,39 :: 		Lcd_out(2,1,Txt);
+	MOVLW       2
+	MOVWF       FARG_Lcd_Out_row+0 
+	MOVLW       1
+	MOVWF       FARG_Lcd_Out_column+0 
+	MOVLW       _Txt+0
+	MOVWF       FARG_Lcd_Out_text+0 
+	MOVLW       hi_addr(_Txt+0)
+	MOVWF       FARG_Lcd_Out_text+1 
+	CALL        _Lcd_Out+0, 0
+;pic2.c,41 :: 		txt2 = Uart1_Read();
 	CALL        _UART1_Read+0, 0
 	MOVF        R0, 0 
 	MOVWF       _txt2+0 
-;pic2.c,43 :: 		Lcd_chr(2,1,txt2);
+;pic2.c,42 :: 		Lcd_chr(2,1,txt2);
 	MOVLW       2
 	MOVWF       FARG_Lcd_Chr_row+0 
 	MOVLW       1
@@ -48,11 +70,11 @@ L_main0:
 	MOVF        R0, 0 
 	MOVWF       FARG_Lcd_Chr_out_char+0 
 	CALL        _Lcd_Chr+0, 0
-;pic2.c,45 :: 		}
+;pic2.c,44 :: 		}
 L_main3:
-;pic2.c,46 :: 		}
+;pic2.c,45 :: 		}
 	GOTO        L_main0
-;pic2.c,48 :: 		}
+;pic2.c,47 :: 		}
 L_end_main:
 	GOTO        $+0
 ; end of _main
