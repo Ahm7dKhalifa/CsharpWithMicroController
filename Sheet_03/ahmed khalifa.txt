@@ -1,0 +1,908 @@
+project 1
+#########################
+micro c
+########################
+void newline()
+{
+  // The microsoft version of enter or new line is \r\n which is 0x0d 0x0a in hex.
+  // \r is the carriage return
+  Uart1_write ('\r'); 
+  // \n is the line feed    
+  Uart1_write ('\n');      
+  //Uart1_write (0x0D);
+  //Uart1_write (0x0A);
+}
+///////////////////////////
+//Define Global variabls
+//////////////////////////
+// stores A/D value and temperature
+int adc1, adc2 , temp1, temp2;  
+// stores the string value of temperature 
+char txt[7];                     
+void main()
+{
+     ////////////////////////////////////
+     //input/output
+     ////////////////////////////////////
+     // Configure direction of ports
+     TRISA = 0xff; 
+     // Configure all pins of PORTA as A/D channels  
+     ADCON1 = 0x80; 
+     ///////////////////////////////////
+     // uart
+     ////////////////////////////////////
+     uart1_Init (9600); // Initialize UART with baud rate = 9600
+
+     for (;;)
+      {
+        // Read temperature 1 from LM35 on AN0 of PORTA
+        adc1 = adc_read(0); 
+        // Calculate equivalent value of LM35 temperature          
+        temp1 = (adc1 * 500)/ 1024;   
+        // Read temperature 2 from LM35 on AN1 of PORTA
+        adc2 = adc_read(1); 
+        // Calculate equivalent value of LM35 temperature          
+        temp2 = (adc2 * 500)/ 1024;   
+        // Convert numeric result of temperature to string to send it to PC
+        IntToStr (temp1 , txt);  
+         // Convert numeric result of temperature to string to send it to PC     
+        IntToStr (temp2 , txt);      
+        
+        //////////////////////////////////////
+        //first message for an0
+        /////////////////////////////////////
+        // Send resulted temperature 1 string to PC and send newline
+
+        Uart1_write_Text ("Temp 1 = ");
+        Uart1_Write_Text (txt);
+        newline();
+
+
+         //////////////////////////////////////
+        //Second message for an1
+        /////////////////////////////////////
+        // Send resulted temperature 2 string to PC and send newline
+
+        Uart1_write_Text ("Temp 2 = ");
+        Uart1_Write_Text (txt);
+        newline();
+
+        delay_ms(500);
+
+      }
+
+}
+###############################
+c#
+###############################
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+//Name Space for Serial port
+using System.IO.Ports;
+
+namespace WindowsFormsApp1
+{
+    public partial class Form1 : Form
+    {
+
+        //define g;obal variables
+        SerialPort serialPort1;
+
+        public Form1()
+        {
+            InitializeComponent();
+            //GET all names of serial ports in the pc and add Them to combobox
+            getAvailablePorts();
+        }
+
+        void getAvailablePorts()
+        {
+            //GET all names of serial ports
+            string[] ports = SerialPort.GetPortNames();
+            //add Them to combobox
+            comboBox1.Items.AddRange(ports);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                //get name of the port whuch selected in combobox
+                String t = comboBox1.Text.ToString();
+                richTextBox1.ScrollToCaret();
+                //create connection with the port selected
+                serialPort1 = new SerialPort(t, 9600, Parity.None, 8, StopBits.One);
+                //open the port
+                serialPort1.Open();
+                //call this function when the selected port recived data
+                serialPort1.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+
+                label4.Text = "Data Recived....";
+            }
+            catch
+            {
+                label4.Text = "This Port Is Not Connected With PIC ";
+            }
+        }
+
+        private void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
+        {
+            //cast
+            serialPort1 = (SerialPort)sender;
+            ////////////////////////////////////////////
+            // first message from an0
+            ////////////////////////////////////////////
+            //store the recived data in w 
+            String w = serialPort1.ReadLine();
+            if (w != string.Empty)
+            {
+                //richTextBox1.Text += w;
+                Invoke(new Action(() => richTextBox1.Text += w));
+                Invoke(new Action(() => richTextBox1.AppendText(w)));
+                Invoke(new Action(() => richTextBox1.ScrollToCaret()));
+            }
+            else
+            {
+                w = "Waiting to Recive Data From AN0";
+                Invoke(new Action(() => richTextBox1.Text += w));
+                Invoke(new Action(() => richTextBox1.AppendText(w)));
+                Invoke(new Action(() => richTextBox1.ScrollToCaret()));
+            }
+            ////////////////////////////////////////////
+            // Second message from an1
+            ////////////////////////////////////////////
+            w = serialPort1.ReadLine();
+            if (w != string.Empty)
+            {
+                Invoke(new Action(() => richTextBox2.Text += w));
+                Invoke(new Action(() => richTextBox2.AppendText(w)));
+
+                Invoke(new Action(() => richTextBox2.ScrollToCaret()));
+            }
+            else
+            {
+                w = "Waiting to Recive Data From AN1";
+                Invoke(new Action(() => richTextBox2.Text += w));
+                Invoke(new Action(() => richTextBox2.AppendText(w)));
+                Invoke(new Action(() => richTextBox2.ScrollToCaret()));
+            }
+        }
+
+        
+    }
+}
+
+
+
+##########################################################################################################
+project 2
+##############################
+micro c
+##############################
+void newline()
+{
+  
+  Uart1_write ('\r');      
+  Uart1_write ('\n');      
+
+  //Uart1_write (0x0D);
+  //Uart1_write (0x0A);
+}
+/////////////////////////////
+//Define variables
+//////////////////////////////
+int adc1, adc2 , temp1, temp2;   
+char txt[7];                     
+
+void main()
+{
+     ////////////////////////////////
+     // input / output
+     ////////////////////////////////
+     TRISA = 0xff;   // Configure direction of ports
+     ADCON1 = 0x80;  // Configure all pins of PORTA as A/D channels
+     ////////////////////////////////
+     // uart
+     ////////////////////////////////
+     uart1_Init (9600); // Initialize UART with baud rate = 9600
+
+     for (;;)
+      {
+
+        adc1 = adc_read(0);           
+        temp1 = (adc1 * 500)/ 1024;   
+
+        adc2 = adc_read(1);           
+        temp2 = (adc2 * 500)/ 1024;   
+        IntToStr (temp1 , txt);       
+        IntToStr (temp2 , txt);       
+        
+        // Send All Messages and end it with newLine
+        Uart1_write_Text ("Temp 1 = ");
+        Uart1_Write_Text (txt);
+        Uart1_write_Text ("    &&     ");
+        Uart1_write_Text ("Temp 2 = ");
+        Uart1_Write_Text (txt);
+        newline(); //One NewLine
+
+        delay_ms(500);
+
+      }
+
+}
+
+############################
+c#
+############################
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+//Name Space for Serial port
+using System.IO.Ports;
+
+namespace WindowsFormsApp1
+{
+    public partial class Form1 : Form
+    {
+
+        //define g;obal variables
+        SerialPort serialPort1;
+
+        public Form1()
+        {
+            InitializeComponent();
+            //GET all names of serial ports in the pc and add Them to combobox
+            getAvailablePorts();
+        }
+
+        void getAvailablePorts()
+        {
+            //GET all names of serial ports
+            string[] ports = SerialPort.GetPortNames();
+            //add Them to combobox
+            comboBox1.Items.AddRange(ports);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                //get name of the port whuch selected in combobox
+                String t = comboBox1.Text.ToString();
+                richTextBox2.ScrollToCaret();
+                //create connection with the port selected
+                serialPort1 = new SerialPort(t, 9600, Parity.None, 8, StopBits.One);
+                //open the port
+                serialPort1.Open();
+                //call this function when the selected port recived data
+                serialPort1.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+
+                label4.Text = "Data Recived....";
+            }
+            catch
+            {
+                label4.Text = "This Port Is Not Connected With PIC ";
+            }
+        }
+
+        private void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
+        {
+            //cast
+            serialPort1 = (SerialPort)sender;
+            ////////////////////////////////////////////
+            // read all message (temp1 && temp2)
+            ////////////////////////////////////////////
+            //store the recived data in w 
+            String w = serialPort1.ReadLine();
+            if (w != string.Empty)
+            {
+                
+                Invoke(new Action(() => richTextBox2.Text += w));
+                Invoke(new Action(() => richTextBox2.AppendText(w)));
+
+                Invoke(new Action(() => richTextBox2.ScrollToCaret()));
+            }
+            else
+            {
+                w = "Waiting to Recive Data From AN1";
+                Invoke(new Action(() => richTextBox2.Text += w));
+                Invoke(new Action(() => richTextBox2.AppendText(w)));
+                Invoke(new Action(() => richTextBox2.ScrollToCaret()));
+            }
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
+
+###########################################################################
+project 3
+###########################################################################
+
+###########################
+micro c 
+##########################
+void newline()
+{
+  // The microsoft version of enter or new line is \r\n which is 0x0d 0x0a in hex.
+  Uart1_write ('\r');      // \r is the carriage return
+  Uart1_write ('\n');      // \n is the line feed
+
+  //Uart1_write (0x0D);
+  //Uart1_write (0x0A);
+}
+///////////////////////////
+//Define Global variabls
+//////////////////////////
+int adc1, adc2 , temp1, temp2;   // stores A/D value and temperature
+char txt[7];                     // stores the string value of temperature
+
+void main()
+{
+     ////////////////////////////////////
+     //input/output
+     ////////////////////////////////////
+     TRISB = 0xff;   // Configure direction of ports
+     ///////////////////////////////////
+     // uart
+     ////////////////////////////////////
+     uart1_Init (9600); // Initialize UART with baud rate = 9600
+
+     for (;;)
+      {
+      
+        //Switch 0
+        if(PORTB.F0 == 1)
+        {
+            Uart1_write_Text (" Open");
+            newline();
+        }
+        else
+        {
+            Uart1_write_Text (" Closed");
+            newline();
+        }
+        
+        //Switch 1
+        if(PORTB.F1 == 1)
+        {
+            Uart1_write_Text (" Open ");
+            newline();
+        }
+        else
+        {
+            Uart1_write_Text (" Closed ");
+            newline();
+        }
+      
+        //Switch 2
+        if(PORTB.F2 == 1)
+        {
+            Uart1_write_Text (" Open ");
+            newline();
+        }
+        else
+        {
+            Uart1_write_Text (" Closed ");
+            newline();
+        }
+        
+        //Switch 3
+        if(PORTB.F3 == 1)
+        {
+            Uart1_write_Text (" Open ");
+            newline();
+        }
+        else
+        {
+            Uart1_write_Text (" Closed ");
+            newline();
+        }
+      
+        //Switch 4
+        if(PORTB.F4 == 1)
+        {
+            Uart1_write_Text (" Open ");
+            newline();
+        }
+        else
+        {
+            Uart1_write_Text (" Closed ");
+            newline();
+        }
+        
+        //Switch 5
+        if(PORTB.F5 == 1)
+        {
+            Uart1_write_Text (" Open ");
+            newline();
+        }
+        else
+        {
+            Uart1_write_Text (" Closed ");
+            newline();
+        }
+      
+        //Switch 6
+        if(PORTB.F6 == 1)
+        {
+            Uart1_write_Text (" Open ");
+            newline();
+        }
+        else
+        {
+            Uart1_write_Text (" Closed ");
+            newline();
+        }
+
+        //Switch 7
+        if(PORTB.F7 == 1)
+        {
+            Uart1_write_Text (" Open ");
+            newline();
+        }
+        else
+        {
+            Uart1_write_Text (" Closed ");
+            newline();
+        }
+        delay_ms(500);
+
+      }
+
+}
+###############################
+c#
+#################################
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+//Name Space for Serial port
+using System.IO.Ports;
+namespace WindowsFormsApp1
+{
+    public partial class Form1 : Form
+    {
+        //define global variables
+        SerialPort serialPort1;
+
+        public Form1()
+        {
+            InitializeComponent();
+            try
+            {
+                //create connection with the port selected
+                serialPort1 = new SerialPort("COM1", 9600, Parity.None, 8, StopBits.One);
+                //open the port
+                serialPort1.Open();
+                // call this function when the selected port recived data
+                serialPort1.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+            }
+            catch
+            {
+                label4.Text = "This Port Is Not Connected With PIC ";
+            }
+        }
+
+        private void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
+        {
+            //cast
+            serialPort1 = (SerialPort)sender;
+            ////////////////////////////////////////////
+            // read all messages
+            ////////////////////////////////////////////
+            //Switch0
+            String Switch0 = serialPort1.ReadLine();
+            if (Switch0 != string.Empty)
+            {
+
+                Invoke(new Action(() => label9.Text = Switch0));
+            }
+            else
+            {
+                Switch0 = "Waiting to Recive Data From Switch1";
+                Invoke(new Action(() => label9.Text = Switch0));
+            }
+            //Switch1
+            String Switch1 = serialPort1.ReadLine();
+            if (Switch1 != string.Empty)
+            {
+
+                Invoke(new Action(() => label10.Text = Switch1));
+            }
+            else
+            {
+                Switch1 = "Waiting to Recive Data From Switch1";
+                Invoke(new Action(() => label10.Text = Switch1));
+            }
+            //Switch2
+            String Switch2 = serialPort1.ReadLine();
+            if (Switch2 != string.Empty)
+            {
+
+                Invoke(new Action(() => label11.Text = Switch2));
+            }
+            else
+            {
+                Switch2 = "Waiting to Recive Data From Switch2";
+                Invoke(new Action(() => label11.Text = Switch2));
+            }
+            //Switch3
+            String Switch3 = serialPort1.ReadLine();
+            if (Switch3 != string.Empty)
+            {
+
+                Invoke(new Action(() => label12.Text = Switch3));
+            }
+            else
+            {
+                Switch3 = "Waiting to Recive Data From Switch3";
+                Invoke(new Action(() => label12.Text = Switch3));
+            }
+            //Switch4
+            String Switch4= serialPort1.ReadLine();
+            if (Switch4 != string.Empty)
+            {
+
+                Invoke(new Action(() => label13.Text = Switch4));
+            }
+            else
+            {
+                Switch4 = "Waiting to Recive Data From Switch4";
+                Invoke(new Action(() => label13.Text = Switch4));
+            }
+            //Switch5
+            String Switch5 = serialPort1.ReadLine();
+            if (Switch5 != string.Empty)
+            {
+
+                Invoke(new Action(() => label14.Text = Switch5));
+            }
+            else
+            {
+                Switch5 = "Waiting to Recive Data From Switch5";
+                Invoke(new Action(() => label14.Text = Switch5));
+            }
+            //Switch6
+            String Switch6 = serialPort1.ReadLine();
+            if (Switch6 != string.Empty)
+            {
+
+                Invoke(new Action(() => label15.Text = Switch6));
+            }
+            else
+            {
+                Switch6 = "Waiting to Recive Data From Switch6";
+                Invoke(new Action(() => label15.Text = Switch6));
+            }
+            //Switch7
+            String Switch7 = serialPort1.ReadLine();
+            if (Switch7 != string.Empty)
+            {
+
+                Invoke(new Action(() => label16.Text = Switch7));
+            }
+            else
+            {
+                Switch7 = "Waiting to Recive Data From Switch7";
+                Invoke(new Action(() => label16.Text = Switch7));
+            }
+        }
+
+        
+    }
+}
+
+
+
+
+##############################################################################
+project 4
+#############################################################################
+
+##########################
+micro c
+##########################
+void newline()
+{
+  .
+  Uart1_write ('\r');      
+  Uart1_write ('\n');      
+}
+
+/////////////////////////////////
+// interrupt subroutine
+/////////////////////////////////
+void interrupt()
+{
+ ////////////////////////////////////////////////////////
+ // if user pressed on increment button (interrupt INT0)
+ /////////////////////////////////////////////////////////
+ if(INT0IF_Bit==1)
+ {
+  // Send up count to PC and send newline
+  Uart1_Write_Text("Up");
+  PORTD = 0b00000001;
+  Delay_ms(500);
+  PORTD = 0b00000000;
+  newline();
+  INT0IF_Bit = 0;      
+  // Clear INT0IF again to prevent recursive interrupt
+ }
+ ///////////////////////////////////////////////////////
+ // if user pressed on DECREMENT button (interrupt INT1)
+ /////////////////////////////////////////////////////////
+ else if(INT1IF_Bit==1)
+ {
+  // Send down count to PC and send newline
+  Uart1_Write_Text("Down");
+  PORTD.F1 = 1;
+  Delay_ms(500);
+  PORTD.F1 = 0;
+  newline();
+  INT1IF_Bit = 0;      
+  // Clear INT0IF again to prevent recursive interrupt
+ }
+}
+
+void main()
+{
+ /////////////////////////////////////////
+ // Configure of input/output
+ /////////////////////////////////////////
+ TRISB = 0xFF;   
+ //button increment-button decrement as input
+ TRISD = 0; 
+ //FOR LED
+ /////////////////////////////////////////
+ //  Configure interrupts
+ /////////////////////////////////////////
+ GIE_Bit = 1;       // Enable all interrupts
+
+ INT0IE_Bit = 1;    // INT0 Interrupt Enable
+ INT0IF_Bit = 0;    // INT0 Interrupt Flag
+
+ INT1IE_Bit = 1;    // INT1 Interrupt Enable
+ INT1IF_Bit = 0;    // INT1 Interrupt Flag
+ ////////////////////////////////////////////
+ //  Configure  UART
+ ////////////////////////////////////////////
+ UART1_Init (9600); 
+ // Initialize UART with baud rate = 9600
+
+ while(1)
+ {
+  asm sleep;             
+  // Make PIC 18F452 go to sleep until any interrupt occur and wake it up again
+ }
+}
+
+########################
+c#
+########################
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+//name space for serial communication
+using System.IO.Ports;
+
+namespace CounterAPP_FEE
+{
+    public partial class Form1 : Form
+    {
+        //Create Connecation With Port COM2 
+        SerialPort port = new SerialPort("COM1", 9600, Parity.None, 8, StopBits.One);
+        //Default Count
+        int count = 0;
+
+        public Form1()
+        {
+            InitializeComponent();
+            //open port to send or recive data
+            port.Open();
+            //this function invoked when data recived from port COM2
+            port.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+        }
+
+        private void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
+        {
+            //Cast Parameter
+            port = (SerialPort)sender;
+            //Store The Recived Data to W
+            String w = port.ReadLine();
+            //if(String.Equals(w, "Up"))
+            if (String.Compare(w, "Up") == 1)
+            {
+                //Increment Counter 
+                count++;
+                //display counter on label2
+                Invoke(new Action(() => label2.Text = count.ToString()));
+            }
+            else if (String.Compare(w, "Down") == 1)
+            {
+                //decrement Counter
+                count--;
+                //display counter on label2
+                Invoke(new Action(() => label2.Text = count.ToString()));
+            }
+        }
+    }
+}
+
+
+######################################################################
+project 5
+#######################################################################
+
+############################
+micro c
+#############################
+unsigned int count = 0;
+void newline()
+{
+  
+  Uart1_write ('\r');      
+  Uart1_write ('\n');      
+}
+
+/////////////////////////////////
+// interrupt subroutine
+/////////////////////////////////
+void interrupt()
+{
+ ////////////////////////////////////////////////////////
+ // if user pressed on increment button (interrupt INT0)
+ /////////////////////////////////////////////////////////
+ if(INT0IF_Bit==1)
+ {
+  //reset the flag in the first time pressed
+  INT0IF_Bit=0;
+  //wait .5s
+  delay_ms(500);
+  //if the user pressed on the button duraing the .5s make decrement
+  if(INT0IF_Bit==1)
+  {
+   // Send down count to PC and send newline
+   Uart1_Write_Text("Down");
+   PORTD.F1 = 1;
+   Delay_ms(500);
+   PORTD.F1 = 0;
+   newline();
+   INT0IF_Bit = 0;      
+   // Clear INT0IF again to prevent recursive interrupt
+
+  }
+  //if the user do not pressed on the button duraing the .5s make increment
+  else
+  {
+   Uart1_Write_Text("Up");
+   PORTD = 0b00000001;
+   Delay_ms(500);
+   PORTD = 0b00000000;
+   newline();
+   INT0IF_Bit = 0;     
+   // Clear INT0IF again to prevent recursive interrupt
+  }
+  
+
+ }
+
+}
+
+void main()
+{
+ /////////////////////////////////////////
+ // Configure of input/output
+ /////////////////////////////////////////
+ TRISB = 0xFF;   
+ //button increment-button decrement as input
+ TRISD = 0; 
+ //FOR LED
+ /////////////////////////////////////////
+ //  Configure interrupts
+ /////////////////////////////////////////
+ GIE_Bit = 1;       
+ // Enable all interrupts
+
+ INT0IE_Bit = 1;    
+ // INT0 Interrupt Enable
+ INT0IF_Bit = 0;   
+ // INT0 Interrupt Flag
+
+ ////////////////////////////////////////////
+ //  Configure  UART
+ ////////////////////////////////////////////
+ UART1_Init (9600); 
+ // Initialize UART with baud rate = 9600
+
+ while(1)
+ {
+  asm sleep;            
+ // Make PIC 18F452 go to sleep until any interrupt occur and wake it up again
+ }
+}
+###########################
+c#
+##########################
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+//name space for serial communication
+using System.IO.Ports;
+
+namespace CounterAPP_FEE
+{
+    public partial class Form1 : Form
+    {
+        //Create Connecation With Port COM2 
+        SerialPort port = new SerialPort("COM1", 9600, Parity.None, 8, StopBits.One);
+        //Default Count
+        int count = 0;
+
+        public Form1()
+        {
+            InitializeComponent();
+            //open port to send or recive data
+            port.Open();
+            //this function invoked when data recived from port COM2
+            port.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+        }
+
+        private void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
+        {
+            //Cast Parameter
+            port = (SerialPort)sender;
+            //Store The Recived Data to W
+            String w = port.ReadLine();
+            //if(String.Equals(w, "Up"))
+            if (String.Compare(w, "Up") == 1)
+            {
+                //Increment Counter 
+                count++;
+                //display counter on label2
+                Invoke(new Action(() => label2.Text = count.ToString()));
+            }
+            else if (String.Compare(w, "Down") == 1)
+            {
+                //decrement Counter
+                count--;
+                //display counter on label2
+                Invoke(new Action(() => label2.Text = count.ToString()));
+            }
+        }
+    }
+}
